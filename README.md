@@ -1,4 +1,4 @@
-## Writing a Relay, Dispatcher into a RedwoodJS application 
+## Writing a Relay, Dispatcher into a RedwoodJS Cloud native idendity application 
 
 I wrote a `relay` component, a `relay` component is usualy used to set a Relay environment in a React Context, not a RedwoodJS context. Usually, a single instance of this component should be rendered at the very root of the application, in order to set the Relay environment for the whole application:
 
@@ -235,11 +235,20 @@ Interestingly, no such error is thrown if I simply don’t reference any of my c
 
 I'm currently using [Vercel](https://www.vercel.com). 
 
+## Cloud native identity providers 
+
+RedwoodJS has `dbAuth` and support for about a dozen providers at the moment, with new ones like Clerk 6 coming this upcoming release. I may use my own Keycloak-powered SSO, and I'd love to, at some point see some RW support. You can have workaround RW support via following these steps: 
+
+* Dockerize Keycloak
+* Create a docker-compose.yml to standup a KC server
+* Setup your realms and auth provider clients within KC
+* Boiler plate KC API client in the React app
+* Setup the KC Provider at the top of the app
+* Usage with KC React Hooks
+
+These instructions are sometimes hard to find and vague, but if you look for them -- they exist in some Google groups.
+
 ## Conclusion 
 
 There’s probably some more poking around for me to do in determining whether I want to use this dispatcher and `twin.macro` in a larger Redwood app, or just fully commit to pure Tailwind and make liberal use of the `@apply` directive. Either way, I think I’ll have a better route forward though, as this is my only second time 
 building a RedwoodJS app.
-
-
-
-
