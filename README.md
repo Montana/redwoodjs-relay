@@ -233,8 +233,12 @@ Interestingly, no such error is thrown if I simply don’t reference any of my c
 
 ## Deployment 
 
-I'm currently using Vercel. 
+I'm currently using [Vercel](https://www.vercel.com). 
 
+## Conclusion 
+
+There’s probably some more poking around for me to do in determining whether I want to use this dispatcher and `twin.macro` in a larger Redwood app, or just fully commit to pure Tailwind and make liberal use of the `@apply` directive. Either way, I think I’ll have a better route forward though, as this is my only second time 
+building a RedwoodJS app.
 
 
 
