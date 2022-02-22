@@ -213,6 +213,24 @@ This works absolutely fine in Redwood 0.34, so I was suspecting some sort of ver
 
 This is the bigger of my two issues as without a solution, the only workaround I can see would be to stop using twin.macro and rewrite all of my existing styles!
 
+## With Redwood 0.34
+
+Back on `0.34`, running `yarn rw dev` or `yarn rw build` both presented no problems until I added the prerender prop to one of my routes. The build command then failed with an error from `twin.macro` noting that it couldn’t find one of the custom styles from my Tailwind config:
+
+```bash
+---------- Error rendering path "/" ----------
+MacroError: /Users/me/sandbox/rw-twin/web/src/pages/HomePage/HomePage.js: 
+
+✕ text-customColor was not found
+
+Try one of these classes:
+[there follows a long list of similar inbuilt class names, omitted for brevity]
+```
+
+Note that this is thrown in the ‘prerender’ phase of the process - the ‘build’ phase completes successfully.
+
+Interestingly, no such error is thrown if I simply don’t reference any of my custom styles. Using only Tailwind’s predefined styles allows the build and the prerender to complete successfully.
+
 ## Deployment 
 
 I'm currently using Vercel. 
