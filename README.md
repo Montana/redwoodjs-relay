@@ -20,7 +20,7 @@ function Root() {
 module.exports = Root;
 ```
 
-### Props 
+## Props 
 
 `environment`: The Relay environment to set in React Context. Any Relay Hooks (like `useLazyLoadQuery` or `useFragment`) used in descendants of this provider component will use the Relay environment.
 
@@ -118,3 +118,106 @@ export const RedwoodRelayProvider: React.FunctionComponent<{
   )
 }
 ```
+## Dispatcher 
+
+Here's the `dispatcher` I wrote for this Redwood project, which I have yet to figure out how I want this to work. I may have to use Redwood Router in conjunction:
+
+```jsx
+import React, { Component } from 'react';
+
+export default function dispatch(store, atom, action) {
+  return store(atom, action);
+}
+
+export class Dispatcher extends Component {
+  static propTypes = {
+    store: React.PropTypes.func.isRequired
+  };
+
+  static childContextTypes = {
+    dispatch: React.PropTypes.func,
+    atom: React.PropTypes.any
+  };
+
+  getChildContext() {
+    return {
+      atom: this.state.atom,
+      dispatch: this.dispatch.bind(this)
+    };
+  }
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = { atom: dispatch(props.store, undefined, {}) };
+  }
+
+  dispatch(payload) {
+    this.setState(prevState => ({
+      atom: dispatch(this.props.store, prevState.atom, payload)
+    }));
+  }
+
+  render() {
+    return typeof this.props.children === 'function'
+      ? this.props.children(this.state.atom)
+      : this.props.children;
+  }
+}
+
+export class Injector extends Component {
+  static contextTypes = {
+    dispatch: React.PropTypes.func.isRequired,
+    atom: React.PropTypes.any
+  };
+
+  static propTypes = {
+    actions: React.PropTypes.object
+  };
+
+  performAction(actionCreator, ...args) {
+    const { dispatch } = this.context;
+    const payload = actionCreator(...args);
+
+    return typeof payload === 'function'
+      ? payload(dispatch)
+      : dispatch(payload);
+  };
+
+  render() {
+    const { dispatch, atom } = this.context;
+    const { actions: _actions } = this.props;
+
+    const actions = Object.keys(_actions).reduce((result, key) => {
+      result[key] = this.performAction.bind(this, _actions[key]);
+      return result;
+    }, {});
+
+    return this.props.children({ actions, atom });
+  }
+}
+```
+
+## Styling
+
+I’m using `twin.macro` for styling, which (before `v0.35`) has worked a treat up until I try to add a prerender prop to one of my routes. Twin is a Babel macro which allows for writing Tailwind classes within (in my case) styled-components. I’ll separate out the two issues below:
+
+As soon as I import tw from 'twin.macro', the dev process can suddenly no longer render the page, failing with the error:
+
+`Failed to compile.`
+
+`../node_modules/babel-plugin-macros/node_modules/cosmiconfig/dist/readFile.js`
+`Module not found: Error: Can't resolve 'fs' in '/Users/me/sandbox/rw-twin/node_modules/babel-plugin-macros/node_modules/cosmiconfig/dist`
+
+This works absolutely fine in Redwood 0.34, so I was suspecting some sort of version mismatch nested in the dependency tree. I tried pinning cosmiconfig to 6.0.0 via the resolutions field in package.json, but to no avail (this was a bit of a shot in the dark anyway).
+
+This is the bigger of my two issues as without a solution, the only workaround I can see would be to stop using twin.macro and rewrite all of my existing styles!
+
+## Deployment 
+
+I'm currently using Vercel. 
+
+
+
+
+
